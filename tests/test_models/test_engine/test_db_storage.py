@@ -69,11 +69,29 @@ test_db_storage.py'])
 
 
 class TestFileStorage(unittest.TestCase):
-    """Test the FileStorage class"""
+    """Test the DbStorage class"""
+    @classmethod
+    def setUpClass(cls):
+        """Set up for the test"""
+        cls.storage = DBStorage()
+
+    @classmethod
+    def tearDownClass(cls):
+        """At the end of the test this will tear it down"""
+        del cls.storage
+
+    def setUp(self):
+        """Start Up"""
+        self.storage.reload()
+
+    def tearDown(self):
+        """Tear Down."""
+        self.storage.close()
+
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_returns_dict(self):
         """Test that all returns a dictionaty"""
-        self.assertIs(type(models.storage.all()), dict)
+        self.assertIs(type(self.storage.all()), dict)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_no_class(self):
@@ -86,3 +104,34 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_get(self):
+        """Test the get metho of storage instance."""
+        new_state = State(name="California")
+        self.storage.new(new_state)
+        self.storage.save()
+        get_state = self.storage.get(State, new_state.id)
+        self.assertTrue(type(get_state), State)
+        for attr in new_state.__dict__:
+            with self.subTest(attr=attr):
+                self.assertEqual(getattr(new_state, attr),
+                                 getattr(get_state, attr))
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_count(self):
+        """Test the count method of storage instance."""
+        state1 = State(name="California")
+        state2 = State(name="New York")
+        self.storage.new(state1)
+        self.storage.new(state2)
+        self.storage.save()
+
+        state_count = self.storage.count(State)
+        self.assertEqual(state_count, 2)
+
+        user_count = self.storage.count(User)
+        self.assertEqual(user_count, 0)
+
+        total_count = self.storage.count()
+        self.assertEqual(total_count, 2)
