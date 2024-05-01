@@ -24,6 +24,10 @@ class FileStorage:
     # dictionary - empty but will store all objects by <class name>.id
     __objects = {}
 
+    def cls_ref(self):
+        """Return the global classes dictionary."""
+        return classes
+
     def all(self, cls=None):
         """returns the dictionary __objects"""
         if cls is not None:
@@ -55,7 +59,7 @@ class FileStorage:
                 jo = json.load(f)
             for key in jo:
                 self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+        except Exception:
             pass
 
     def delete(self, obj=None):
@@ -68,3 +72,13 @@ class FileStorage:
     def close(self):
         """call reload() method for deserializing the JSON file to objects"""
         self.reload()
+
+    def get(self, cls, id):
+        """Retrieve an object."""
+        if type(cls) is not str:
+            cls = cls.__name__
+        return self.all(cls).get(f'{cls}.{id}', None)
+
+    def count(self, cls=None):
+        """Count the number of objs(all or for a cls) in the storage."""
+        return len(self.all(cls))
