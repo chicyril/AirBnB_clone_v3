@@ -89,7 +89,7 @@ class DBStorage:
         """Retrieve an object."""
         if type(cls) is not str:
             cls = cls.__name__
-        return self.all(cls).get(f'{cls}.{id}', None)
+        return self.all(cls).get('{}.{}'.format(cls, id), None)
 
     def count(self, cls=None):
         """Count the number of objs(all or for a cls) in the storage."""

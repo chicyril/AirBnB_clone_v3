@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """
-Module containing a flack instance. Is this Doccumentation enough for you
-CHECKER!!!!
+Module containing a flack instance.
 """
 from os import getenv
 from flask import Flask, jsonify
